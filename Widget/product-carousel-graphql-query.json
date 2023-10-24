@@ -1,0 +1,48 @@
+{
+    "name": "Product Carousel",
+    "storefront_api_query": "query ProductSet($productIds: [Int!],$activeCurrencyCode: currencyCode) { site { products(entityIds: $productIds) { edges { node { name entityId path addToCartUrl availabilityV2 { status } inventory { isInStock } brand { name } prices(currencyCode: $activeCurrencyCode) { price {currencyCode value } } defaultImage { url(width: 500, height: 500) } } } } } }",
+    "schema": [
+          {
+            "type": "hidden",
+            "settings": [
+              {
+                "type": "graphQl",
+                "id": "graphQueries",
+                "typeMeta": {
+                  "mappings": {
+                    "productIds": {
+                      "reads": "product.value.*.productId",
+                      "type": "Int!"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "tab",
+            "label": "Content",
+            "sections": [
+              {
+                "label": "Products",
+                "settings": [
+                  {
+                    "type": "productSet",
+                    "label": "Product Set",
+                    "id": "product",
+                    "entryLabel": "Product",
+                    "default": {
+                      "type": "manual",
+                      "value": []
+                    }
+                  }
+                ],
+                "typeMeta": {
+                  "type": "setSection"
+                }
+              }
+            ]
+          }
+        ],
+    "template": "<section class=\"productCarousel custom-carousel--widget\" data-slick='{\"infinite\": false,\"mobileFirst\": true,\"slidesToShow\": 1,\"slidesToScroll\": 1,\"slide\": \"[data-product-slide]\",\"dots\" : false,\"responsive\": [{\"breakpoint\": 800,\"settings\": {\"slidesToShow\": 4,\"slidesToScroll\": 4}},{\"breakpoint\": 550,\"settings\": {\"slidesToShow\": 2,\"slidesToScroll\": 2}}]}'>{{#each product.value as |product| }}\n{{#each ../_.data.site.products.edges as |productResource| }}\n {{#if productResource.node.entityId \"==\" product.productId}}\n<div data-product-slide class=\"{{#unless productResource.node.inventory.isInStock }}ek__outOfStock-article {{/unless}}card\">\n<div class=\"card--wrapper\"><figure class=\"card-figure\">\n<a href=\"{{productResource.node.path}}\" class=\"card-figure__link\">\n<div class=\"card-img-container\">\n<img class=\"card-image\" src=\"{{productResource.node.defaultImage.url}}\" alt=\"{{productResource.node.name}}\">\n</div>\n</a>\n</figure>\n{{#if productResource.node.inventory.isInStock }}\n<figcaption class=\"card-figcaption ek-card-figure\">\n<div class=\"card-figcaption-body\">\n<div class=\"ek__uni__btn-wrap\">\n<a data-id=\"{{productResource.node.entityId}}\" href=\"{{productResource.node.add_to_cart_url}}\" data-product-name=\"{{productResource.node.name}}\" class=\"ek__uni__btn ek__cart__btn ek__btn__hxn\">Add To Cart</a>\n</div>\n</div>\n</figcaption>\n{{else}}\n<figcaption class=\"card-figcaption ek-card-figure\">\n<div class=\"card-figcaption-body\">\n<div class=\"ek__uni__btn-wrap ek__outOfStock__product\">\n<span class=\"ek__uni__btn\">Out Of Stock</span>\n</div>\n</div>\n</figcaption>\n{{/if}}\n<div class=\"card-body\">\n{{#if productResource.node.brand.name}}\n<p class=\"card-text\">{{productResource.node.brand.name}}</p>\n{{/if}}\n<h3 class=\"card-title\">\n<a href=\"{{productResource.node.path}}\">{{productResource.node.name}}</a></h3><div style=\"margin: 10px 0;\"><div class=\"jdgm-widget jdgm-preview-badge\" data-id=\"{{productResource.node.entityId}}\"></div></div>\n{{#if productResource.node.inventory.isInStock }}\n<div class=\"card-text\">\n<span class=\"price\">${{productResource.node.prices.price.value}}</span></div>{{/if}}</div></div></div>{{/if}}{{/each}}{{/each}}</section>"
+  }
